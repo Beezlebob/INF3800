@@ -198,44 +198,30 @@ public class InMemoryInvertedIndex implements IInvertedIndex {
 			
 			IToken token = tokenIterator.next();
 			
-			if(isNew(token)){
-			//TODO: Do something smart here, to check if the token is new or not
-			//Adding a new posting and looking up in the lexicon if the token is right
-			//then adding it to the invertedIndex
+			//Unknown tokens, i.e not in the lexicon.
+			//Adding new PostingList, newValue in lexicon, and new Posting to said postingList
+			if(lexicon.lookup(token.getValue())==lexicon.INVALID){
 				lexicon.addValue(token.getValue());
-				System.out.println(lexicon.size());
-			}else{
-				System.out.println("token exists");
-				System.out.println("Token: "+token.getValue());
+				invertedIndex.add(lexicon.lookup(token.getValue()), new PostingList());
+				invertedIndex.get(lexicon.lookup(token.getValue())).appendPosting(new Posting(documentId,token.getPosition()));
+			}else{  
+				//The term is already in the invertedIndex, i.e adding new positions
+				if(invertedIndex.get(lexicon.lookup(token.getValue())).getLastPosting().getDocumentId()==documentId){
+					invertedIndex.get(lexicon.lookup(token.getValue())).getLastPosting().appendPosition(token.getPosition());
+				}else{
+					invertedIndex.get(lexicon.lookup(token.getValue())).appendPosting(new Posting(documentId,token.getPosition()));
+				}
 			}
-
-			// TODO: THIS IS ASSIGNMENT 1: 
-			// Iterate through the document tokens. If the token is processed/known, it should be 
-			// added to the posting list for the correct document. if it is new, a new posting list should 
-			// be created
-			
-			
+					
 				
 			
 			
-			throw new RuntimeException("Your task is to complete this method!");
+			//throw new RuntimeException("Your task is to complete this method!");
 			
 
             
 		}
 		
-	}
-	/**
-	 * Checking if it is a new token
-	 * @param token
-	 * @return true if token is new, false if not
-	 */
-	private boolean isNew(IToken token){
-		System.out.println("Checking token");
-		if(lexicon.lookup(token.getValue())==-1){
-			return false;
-		}
-		return true;
 	}
 	/**
 	 * Implements the {@link IInvertedIndex} interface.
